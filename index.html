@@ -4,302 +4,389 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desafio da Ilha Deserta</title>
-    <style>
-        /* --- Importação da Fonte --- */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+   <style>
+    /* --- Importação da Fonte --- */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-        /* --- Variáveis de Cor --- */
-        :root {
-            --color-bg: #0d1b2a;
-            --color-bg-light: #1b263b;
-            --color-card: #2a3a50;
-            --color-primary: #3d8bfd;
-            --color-secondary: #00f5d4;
-            --color-text: #e0e1dd;
-            --color-text-dark: #a9b4c2;
-            --color-match: #ffc300;
-        }
+    /* --- Variáveis de Cor --- */
+    :root {
+        --color-bg: #0d1b2a;
+        --color-bg-light: #1b263b;
+        --color-card: #2a3a50;
+        --color-primary: #3d8bfd;
+        --color-secondary: #00f5d4;
+        --color-text: #e0e1dd;
+        --color-text-dark: #a9b4c2;
+        --color-match: #ffc300;
+    }
 
-        /* --- Reset e Configuração Geral --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    /* --- Reset e Configuração Geral --- */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            color: var(--color-text);
-            background: linear-gradient(-45deg, #0d1b2a, #1b263b, #2a3a50, #415a77);
-            background-size: 400% 400%;
-            animation: gradientBG 20s ease infinite;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden; /* Esconde overflow para o efeito de tilt */
-            perspective: 1000px; /* Perspectiva para o 3D */
-        }
+    html {
+        /* Garante scroll suave */
+        scroll-behavior: smooth;
+    }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: var(--color-text);
+        background: linear-gradient(-45deg, #0d1b2a, #1b263b, #2a3a50, #415a77);
+        background-size: 400% 400%;
+        animation: gradientBG 20s ease infinite;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        /* Garante altura total em webkits (iOS) */
+        min-height: -webkit-fill-available;
+        overflow: hidden; /* Esconde overflow para o efeito de tilt */
+        perspective: 1000px; /* Perspectiva para o 3D */
+    }
 
-        /* --- Container Principal (para o efeito de tilt) --- */
-        .main-container {
-            width: 95%;
-            max-width: 900px;
-            height: 90vh;
-            max-height: 700px;
-            background: var(--color-bg-light);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.1s ease-out;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* Para conter as telas */
-        }
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
 
+    /* --- Container Principal (para o efeito de tilt) --- */
+    .main-container {
+        width: 95%;
+        max-width: 900px;
+        height: 90vh;
+        max-height: 700px;
+        background: var(--color-bg-light);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: transform 0.1s ease-out;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Para conter as telas */
+    }
+
+    /* --- Telas (Start, Rules, Game, Results) --- */
     .screen {
-    padding: 40px;
-    display: none; /* Todas escondidas por padrão */
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; /* <<-- CORREÇÃO AQUI */
-    text-align: center;
-    width: 100%;
-    height: 100%;
-    animation: fadeIn 0.6s ease-out;
-    overflow-y: auto; /* Permite scroll se o conteúdo for grande */
-}
+        padding: 40px;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        height: 100%;
+        overflow-y: auto; /* Permite scroll */
+        /*
+        Esta é a chave! A maioria das telas começa no topo.
+        Vamos sobrescrever para as telas de início e regras.
+        */
+        justify-content: flex-start;
+    }
 
-        .screen.active {
-            display: flex;
+    .screen.active {
+        display: flex;
+        /* Animação de entrada mais suave */
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    /* >>> A CORREÇÃO PRINCIPAL ESTÁ AQUI <<<
+       Telas curtas (Início e Regras) ficam centralizadas.
+       Telas longas (Jogo e Resultados) usam o 'flex-start' acima.
+    */
+    #start-screen, #rules-screen {
+        justify-content: center;
+    }
+
+    /* Animação de entrada mais dinâmica */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.97) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        color: var(--color-secondary);
+        margin-bottom: 10px;
+    }
+    
+    h2 {
+        font-size: 2rem;
+        color: var(--color-primary);
+        margin-bottom: 20px;
+    }
+    
+    h3 {
+        color: var(--color-secondary);
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+
+    p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--color-text-dark);
+        max-width: 600px;
+    }
+
+    /* --- Botões --- */
+    .btn {
+        background: var(--color-primary);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn:hover {
+        transform: scale(1.05) translateY(-3px);
+        box-shadow: 0 8px 20px rgba(61, 139, 253, 0.4);
+        background: #4a9aff;
+    }
+
+    .btn-secondary {
+        background: var(--color-card);
+        color: var(--color-text);
+    }
+
+    .btn-secondary:hover {
+        background: var(--color-bg-light);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-reveal {
+        background: var(--color-secondary);
+        color: var(--color-bg);
+    }
+    
+    .btn-reveal:hover {
+        background: #00ffd5;
+        box-shadow: 0 8px 20px rgba(0, 245, 212, 0.4);
+    }
+    
+    #btn-reveal-matches {
+        display: none; /* Começa escondido */
+    }
+
+    /* --- Tela do Jogo (Inputs) --- */
+    .player-section {
+        width: 100%;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .player-section.active {
+        display: flex;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .category-grid {
+        display: grid;
+        /* Grid dinâmico: 
+         - Em telas grandes, tenta encaixar colunas de 250px.
+         - Em telas pequenas, 'minmax(250px, 1fr)' vira 1 coluna só.
+        */
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .category-box {
+        background: var(--color-card);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-box label {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--color-primary);
+    }
+
+    .category-box input[type="text"] {
+        width: 100%;
+        background: var(--color-bg-light);
+        border: 2px solid var(--color-bg); /* Borda mais grossa */
+        border-radius: 5px;
+        padding: 8px;
+        margin-bottom: 8px;
+        color: var(--color-text);
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .category-box input[type="text"]:focus {
+        outline: none;
+        border-color: var(--color-secondary);
+        /* Efeito de "glow" no focus */
+        box-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+    }
+
+    /* --- Tela de Resultados --- */
+    #results-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .result-category-card {
+        background: var(--color-card);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .result-category-card h3 {
+        text-align: center;
+        font-size: 1.5rem;
+    }
+
+    .result-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* 3 colunas por padrão */
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .result-column {
+        background: var(--color-bg-light);
+        padding: 15px;
+        border-radius: 8px;
+    }
+    
+    .result-column h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-dark);
+        border-bottom: 2px solid var(--color-card);
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .result-column.matches h4 {
+        color: var(--color-match);
+    }
+    
+    .result-column ul {
+        list-style: none;
+    }
+    
+    .result-column li {
+        padding: 5px 0;
+        font-size: 0.95rem;
+        word-wrap: break-word; /* Garante que texto longo não quebre o layout */
+    }
+    
+    .result-column .match-item {
+        font-weight: 700;
+        color: var(--color-match);
+        animation: pulse 1.5s infinite ease-in-out;
+    }
+    
+    .result-column .no-match {
+        font-style: italic;
+        color: var(--color-text-dark);
+    }
+
+    @keyframes pulse {
+        0% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
+        50% { text-shadow: 0 0 10px rgba(255, 195, 0, 1); }
+        100% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
+    }
+    
+    /* --- Scrollbar Customizada --- */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+        background: var(--color-bg-light);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--color-primary);
+        border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #4a9aff;
+    }
+
+    /* ========================================================
+    >>> NOVO BLOCO DE RESPONSIVIDADE (CELULAR) <<<
+    ========================================================
+    */
+    
+    @media (max-width: 768px) {
+        body {
+            /* Remove a perspectiva no celular, o efeito de tilt pode ser estranho */
+            perspective: none; 
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .main-container {
+            /* Transforma o app em "tela cheia" no celular */
+            width: 100vw;
+            height: 100vh;
+            height: -webkit-fill-available; /* Para iOS Safari */
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+            max-height: none; /* Remove a altura máxima */
+            
+            /* Desativa o tilt no celular, é estranho e gasta bateria */
+            transform: none !important;
+        }
+
+        .screen {
+            padding: 20px; /* Reduz o padding lateral */
         }
 
         h1 {
-            font-size: 2.5rem;
-            color: var(--color-secondary);
-            margin-bottom: 10px;
+            font-size: 2rem;
         }
         
         h2 {
-            font-size: 2rem;
-            color: var(--color-primary);
-            margin-bottom: 20px;
-        }
-        
-        h3 {
-            color: var(--color-secondary);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--color-text-dark);
-            max-width: 600px;
-        }
-
-        /* --- Botões --- */
-        .btn {
-            background: var(--color-primary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn:hover {
-            transform: scale(1.05) translateY(-3px);
-            box-shadow: 0 8px 20px rgba(61, 139, 253, 0.4);
-            background: #4a9aff;
-        }
-
-        .btn-secondary {
-            background: var(--color-card);
-            color: var(--color-text);
-        }
-
-        .btn-secondary:hover {
-            background: var(--color-bg-light);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn-reveal {
-            background: var(--color-secondary);
-            color: var(--color-bg);
-        }
-        
-        .btn-reveal:hover {
-            background: #00ffd5;
-            box-shadow: 0 8px 20px rgba(0, 245, 212, 0.4);
-        }
-        
-        #btn-reveal-matches {
-            display: none; /* Começa escondido */
-        }
-
-        /* --- Tela do Jogo (Inputs) --- */
-        .player-section {
-            width: 100%;
-            display: none; /* Começa escondido */
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .player-section.active {
-            display: flex;
-            animation: fadeIn 0.6s ease-out;
+            font-size: 1.7rem;
         }
 
         .category-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .category-box {
-            background: var(--color-card);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .category-box label {
-            display: block;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: var(--color-primary);
-        }
-
-        .category-box input[type="text"] {
-            width: 100%;
-            background: var(--color-bg-light);
-            border: 1px solid var(--color-bg);
-            border-radius: 5px;
-            padding: 8px;
-            margin-bottom: 8px;
-            color: var(--color-text);
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-        }
-        
-        .category-box input[type="text"]:focus {
-            outline: none;
-            border-color: var(--color-secondary);
-        }
-
-        /* --- Tela de Resultados --- */
-        #results-grid {
-            display: grid;
+            /* O 'auto-fit' já faz isso, mas garantimos 1 coluna */
             grid-template-columns: 1fr;
-            gap: 20px;
-            width: 100%;
-            text-align: left;
-        }
-
-        .result-category-card {
-            background: var(--color-card);
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            gap: 15px;
         }
         
-        .result-category-card h3 {
-            text-align: center;
-            font-size: 1.5rem;
+        .category-box {
+            padding: 15px;
         }
 
         .result-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-top: 15px;
+            /* Esta é a mudança mais importante para o celular! */
+            grid-template-columns: 1fr; /* Colunas empilhadas */
+            gap: 20px;
         }
         
         .result-column {
-            background: var(--color-bg-light);
-            padding: 15px;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.1); /* Um pouco mais de contraste */
         }
-        
-        .result-column h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--color-text-dark);
-            border-bottom: 2px solid var(--color-card);
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
-        
-        .result-column.matches h4 {
-            color: var(--color-match);
-        }
-        
-        .result-column ul {
-            list-style: none;
-        }
-        
-        .result-column li {
-            padding: 5px 0;
-            font-size: 0.95rem;
-        }
-        
-        .result-column .match-item {
-            font-weight: 700;
-            color: var(--color-match);
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-        
-        .result-column .no-match {
-            font-style: italic;
-            color: var(--color-text-dark);
-        }
-
-        @keyframes pulse {
-            0% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
-            50% { text-shadow: 0 0 10px rgba(255, 195, 0, 1); }
-            100% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
-        }
-        
-        /* --- Scrollbar Customizada --- */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--color-bg-light);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--color-primary);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4a9aff;
-        }
-        
-    </style>
+    }
+</style>
 </head>
 <body>
 
