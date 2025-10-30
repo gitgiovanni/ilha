@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio da Ilha Deserta</title>
+    <style>
+        /* --- Importação da Fonte --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        /* --- Variáveis de Cor --- */
+        :root {
+            --color-bg: #0d1b2a;
+            --color-bg-light: #1b263b;
+            --color-card: #2a3a50;
+            --color-primary: #3d8bfd;
+            --color-secondary: #00f5d4;
+            --color-text: #e0e1dd;
+            --color-text-dark: #a9b4c2;
+            --color-match: #ffc300;
+        }
+
+        /* --- Reset e Configuração Geral --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--color-text);
+            background: linear-gradient(-45deg, #0d1b2a, #1b263b, #2a3a50, #415a77);
+            background-size: 400% 400%;
+            animation: gradientBG 20s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Esconde overflow para o efeito de tilt */
+            perspective: 1000px; /* Perspectiva para o 3D */
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Container Principal (para o efeito de tilt) --- */
+        .main-container {
+            width: 95%;
+            max-width: 900px;
+            height: 90vh;
+            max-height: 700px;
+            background: var(--color-bg-light);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.1s ease-out;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Para conter as telas */
+        }
+
+        /* --- Telas (Start, Rules, Game, Results) --- */
+        .screen {
+            padding: 40px;
+            display: none; /* Todas escondidas por padrão */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            animation: fadeIn 0.6s ease-out;
+            overflow-y: auto; /* Permite scroll se o conteúdo for grande */
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--color-secondary);
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+        
+        h3 {
+            color: var(--color-secondary);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--color-text-dark);
+            max-width: 600px;
+        }
+
+        /* --- Botões --- */
+        .btn {
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 8px 20px rgba(61, 139, 253, 0.4);
+            background: #4a9aff;
+        }
+
+        .btn-secondary {
+            background: var(--color-card);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg-light);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-reveal {
+            background: var(--color-secondary);
+            color: var(--color-bg);
+        }
+        
+        .btn-reveal:hover {
+            background: #00ffd5;
+            box-shadow: 0 8px 20px rgba(0, 245, 212, 0.4);
+        }
+        
+        #btn-reveal-matches {
+            display: none; /* Começa escondido */
+        }
+
+        /* --- Tela do Jogo (Inputs) --- */
+        .player-section {
+            width: 100%;
+            display: none; /* Começa escondido */
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .player-section.active {
+            display: flex;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .category-box {
+            background: var(--color-card);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-box label {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--color-primary);
+        }
+
+        .category-box input[type="text"] {
+            width: 100%;
+            background: var(--color-bg-light);
+            border: 1px solid var(--color-bg);
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 8px;
+            color: var(--color-text);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+        
+        .category-box input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-secondary);
+        }
+
+        /* --- Tela de Resultados --- */
+        #results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .result-category-card {
+            background: var(--color-card);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-category-card h3 {
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .result-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .result-column {
+            background: var(--color-bg-light);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .result-column h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text-dark);
+            border-bottom: 2px solid var(--color-card);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .result-column.matches h4 {
+            color: var(--color-match);
+        }
+        
+        .result-column ul {
+            list-style: none;
+        }
+        
+        .result-column li {
+            padding: 5px 0;
+            font-size: 0.95rem;
+        }
+        
+        .result-column .match-item {
+            font-weight: 700;
+            color: var(--color-match);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        
+        .result-column .no-match {
+            font-style: italic;
+            color: var(--color-text-dark);
+        }
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
+            50% { text-shadow: 0 0 10px rgba(255, 195, 0, 1); }
+            100% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
+        }
+        
+        /* --- Scrollbar Customizada --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--color-bg-light);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-primary);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a9aff;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="main-container" id="main-container">
+
+        <div class="screen active" id="start-screen">
+            <h1>Desafio da Ilha</h1>
+            <p>Vocês conseguem sobreviver (com luxo) juntos?</p>
+            <div class="button-group">
+                <button class="btn" id="btn-play">Jogar</button>
+                <button class="btn btn-secondary" id="btn-rules">Regras</button>
+            </div>
+        </div>
+
+        <div class="screen" id="rules-screen">
+            <h2>Regras do Jogo</h2>
+            <p>Você e seu parceiro estão em uma ilha deserta que já tem nela:
+                <br><br>
+                <b>Casa</b>, <b>gerador de energia</b>, <b>água potável</b> à vontade, uma <b>TV</b> (que só serve para assistir os filmes que você levar) e <b>todos os consoles e um PC</b> (que só vão rodar os jogos que você levar).
+                <br><br>
+                Cada um deve escolher 5 itens para 7 categorias. Boa sorte!
+            </p>
+            <button class="btn btn-secondary" id="btn-back-to-start">Voltar</button>
+        </div>
+
+        <div class="screen" id="game-screen">
+            
+            <div class="player-section active" id="player1-section">
+                <h2>Vez do Jogador 1</h2>
+                <p>Preencha suas 5 escolhas para cada categoria.</p>
+                <form id="player1-form" class="category-grid">
+                    </form>
+                <button class="btn" id="btn-confirm-p1">Confirmar Jogador 1</button>
+            </div>
+            
+            <div class="player-section" id="player2-section">
+                <h2>Vez do Jogador 2</h2>
+                <p>Agora é sua vez. Sem espiar as respostas do Jogador 1!</p>
+                <form id="player2-form" class="category-grid">
+                    </form>
+                <button class="btn" id="btn-confirm-p2">Confirmar Jogador 2</button>
+            </div>
+            
+            <button class="btn btn-reveal" id="btn-reveal-matches">✨ Revelar Matches ✨</button>
+            
+        </div>
+        
+        <div class="screen" id="results-screen">
+            <h2>Resultados e Matches!</h2>
+            <p>Vejam onde vocês concordam e onde são totalmente diferentes.</p>
+            <div id="results-grid">
+                </div>
+            <button class="btn btn-secondary" id="btn-play-again">Jogar Novamente</button>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Constantes das Categorias ---
+            const CATEGORIES = [
+                { id: 'jogos', label: '5 Jogos' },
+                { id: 'vestimentas', label: '5 Vestimentas' },
+                { id: 'objetos', label: '5 Objetos' },
+                { id: 'filmes', label: '5 Filmes' },
+                { id: 'comidas', label: '5 Comidas' },
+                { id: 'livros', label: '5 Livros' },
+                { id: 'bebidas', label: '5 Bebidas' }
+            ];
+
+            // --- Seletores de Elementos ---
+            const mainContainer = document.getElementById('main-container');
+            
+            const screens = {
+                start: document.getElementById('start-screen'),
+                rules: document.getElementById('rules-screen'),
+                game: document.getElementById('game-screen'),
+                results: document.getElementById('results-screen')
+            };
+
+            const playerSections = {
+                p1: document.getElementById('player1-section'),
+                p2: document.getElementById('player2-section')
+            };
+
+            const forms = {
+                p1: document.getElementById('player1-form'),
+                p2: document.getElementById('player2-form')
+            };
+            
+            const resultsGrid = document.getElementById('results-grid');
+
+            const buttons = {
+                play: document.getElementById('btn-play'),
+                rules: document.getElementById('btn-rules'),
+                back: document.getElementById('btn-back-to-start'),
+                confirmP1: document.getElementById('btn-confirm-p1'),
+                confirmP2: document.getElementById('btn-confirm-p2'),
+                reveal: document.getElementById('btn-reveal-matches'),
+                playAgain: document.getElementById('btn-play-again')
+            };
+            
+            // --- Armazenamento das Escolhas ---
+            let player1Choices = {};
+            let player2Choices = {};
+            
+            // --- Funções Auxiliares ---
+
+            /**
+             * Muda para a tela especificada.
+             * @param {string} screenName - Chave da tela (ex: 'start', 'game')
+             */
+            function showScreen(screenName) {
+                Object.values(screens).forEach(screen => screen.classList.remove('active'));
+                screens[screenName].classList.add('active');
+            }
+
+            /**
+             * Gera as caixas de input para um formulário.
+             * @param {HTMLElement} formElement - O elemento <form> para preencher.
+             */
+            function populateForm(formElement) {
+                let html = '';
+                CATEGORIES.forEach(category => {
+                    html += `<div class="category-box" data-category="${category.id}">`;
+                    html += `<label for="${formElement.id}-${category.id}">${category.label}</label>`;
+                    for (let i = 1; i <= 5; i++) {
+                        html += `<input type="text" id="${formElement.id}-${category.id}-${i}" placeholder="Item ${i}" required>`;
+                    }
+                    html += `</div>`;
+                });
+                formElement.innerHTML = html;
+            }
+
+            /**
+             * Coleta os dados de um formulário.
+             * @param {HTMLElement} formElement - O elemento <form> de onde ler.
+             * @returns {Object} - Um objeto com as escolhas (ou null se inválido).
+             */
+            function getChoices(formElement) {
+                let choices = {};
+                let isValid = true;
+                
+                CATEGORIES.forEach(category => {
+                    choices[category.id] = [];
+                    const inputs = formElement.querySelectorAll(`[data-category="${category.id}"] input`);
+                    inputs.forEach(input => {
+                        const value = input.value.trim();
+                        if (value) {
+                            choices[category.id].push(value);
+                        }
+                    });
+                    
+                    // Validação simples: precisa de pelo menos 1 item por categoria
+                    if (choices[category.id].length === 0) {
+                        isValid = false;
+                        inputs[0].focus(); // Foca no primeiro campo vazio da categoria
+                    }
+                });
+
+                if (!isValid) {
+                    alert('Por favor, preencha pelo menos um item em cada categoria!');
+                    return null;
+                }
+                
+                return choices;
+            }
+            
+            /**
+             * Normaliza um item para comparação (lowercase, sem acentos).
+             * @param {string} str - A string para normalizar.
+             */
+            function normalize(str) {
+                return str.toLowerCase().trim()
+                          .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+
+            /**
+             * Calcula e exibe os resultados.
+             */
+            function displayResults() {
+                resultsGrid.innerHTML = ''; // Limpa resultados anteriores
+                
+                CATEGORIES.forEach(category => {
+                    const p1List = player1Choices[category.id].map(normalize);
+                    const p2List = player2Choices[category.id].map(normalize);
+                    
+                    const p1Original = player1Choices[category.id];
+                    const p2Original = player2Choices[category.id];
+                    
+                    let matches = [];
+                    let p1Only = [];
+                    let p2Only = [];
+
+                    // Encontra matches e itens únicos do P1
+                    p1Original.forEach((item, index) => {
+                        const normalizedItem = p1List[index];
+                        if (p2List.includes(normalizedItem)) {
+                            matches.push(item);
+                        } else {
+                            p1Only.push(item);
+                        }
+                    });
+
+                    // Encontra itens únicos do P2
+                    p2Original.forEach((item, index) => {
+                        const normalizedItem = p2List[index];
+                        if (!p1List.includes(normalizedItem)) {
+                            p2Only.push(item);
+                        }
+                    });
+
+                    // Cria o HTML do Card
+                    const cardHTML = `
+                        <div class="result-category-card">
+                            <h3>${category.label}</h3>
+                            <div class="result-columns">
+                                <div class="result-column">
+                                    <h4>Jogador 1</h4>
+                                    <ul id="p1-list-${category.id}"></ul>
+                                </div>
+                                <div class="result-column matches">
+                                    <h4>❤️ Matches ❤️</h4>
+                                    <ul id="match-list-${category.id}"></ul>
+                                </div>
+                                <div class="result-column">
+                                    <h4>Jogador 2</h4>
+                                    <ul id="p2-list-${category.id}"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    resultsGrid.insertAdjacentHTML('beforeend', cardHTML);
+                    
+                    // Popula as listas
+                    const p1ListEl = document.getElementById(`p1-list-${category.id}`);
+                    const p2ListEl = document.getElementById(`p2-list-${category.id}`);
+                    const matchListEl = document.getElementById(`match-list-${category.id}`);
+                    
+                    p1Only.length ? p1Only.forEach(item => p1ListEl.innerHTML += `<li>${item}</li>`) : p1ListEl.innerHTML = `<li class="no-match">Nenhum</li>`;
+                    p2Only.length ? p2Only.forEach(item => p2ListEl.innerHTML += `<li>${item}</li>`) : p2ListEl.innerHTML = `<li class="no-match">Nenhum</li>`;
+                    matches.length ? matches.forEach(item => matchListEl.innerHTML += `<li class="match-item">${item}</li>`) : matchListEl.innerHTML = `<li class="no-match">Nenhum match</li>`;
+                });
+                
+                showScreen('results');
+            }
+
+            // --- Efeito de Tilt (Movimento do Mouse) ---
+            mainContainer.addEventListener('mousemove', (e) => {
+                const rect = mainContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+
+                const rotateX = (y / rect.height) * -10; // Max 5 graus
+                const rotateY = (x / rect.width) * 10;   // Max 5 graus
+
+                mainContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+
+            mainContainer.addEventListener('mouseleave', () => {
+                mainContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+
+            // --- Navegação entre Telas ---
+            
+            // Tela Inicial
+            buttons.play.addEventListener('click', () => {
+                showScreen('game');
+                playerSections.p1.classList.add('active');
+                playerSections.p2.classList.remove('active');
+                buttons.reveal.style.display = 'none';
+            });
+            buttons.rules.addEventListener('click', () => showScreen('rules'));
+            buttons.back.addEventListener('click', () => showScreen('start'));
+
+            // Tela do Jogo
+            buttons.confirmP1.addEventListener('click', (e) => {
+                e.preventDefault(); // Impede o envio do formulário
+                const choices = getChoices(forms.p1);
+                if (choices) {
+                    player1Choices = choices;
+                    playerSections.p1.classList.remove('active');
+                    playerSections.p2.classList.add('active');
+                    // Rola a tela do jogo para o topo
+                    screens.game.scrollTop = 0;
+                }
+            });
+
+            buttons.confirmP2.addEventListener('click', (e) => {
+                e.preventDefault();
+                const choices = getChoices(forms.p2);
+                if (choices) {
+                    player2Choices = choices;
+                    playerSections.p2.classList.remove('active');
+                    buttons.reveal.style.display = 'block';
+                }
+            });
+
+            // Tela de Resultados
+            buttons.reveal.addEventListener('click', displayResults);
+            
+            buttons.playAgain.addEventListener('click', () => {
+                // Reseta os formulários
+                forms.p1.reset();
+                forms.p2.reset();
+                // Reseta os dados
+                player1Choices = {};
+                player2Choices = {};
+                // Volta para a tela inicial
+                showScreen('start');
+            });
+            
+            // --- Inicialização ---
+            populateForm(forms.p1);
+            populateForm(forms.p2);
+            showScreen('start'); // Mostra a tela inicial
+        });
+    </script>
+</body>
+</html>
