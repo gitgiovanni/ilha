@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desafio da Ilha Deserta</title>
    <style>
-    /* --- Importação da Fonte --- */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
-    /* --- Variáveis de Cor --- */
     :root {
         --color-bg: #0d1b2a;
         --color-bg-light: #1b263b;
@@ -20,7 +18,6 @@
         --color-match: #ffc300;
     }
 
-    /* --- Reset e Configuração Geral --- */
     * {
         margin: 0;
         padding: 0;
@@ -28,7 +25,6 @@
     }
 
     html {
-        /* Garante scroll suave */
         scroll-behavior: smooth;
     }
 
@@ -42,10 +38,8 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        /* Garante altura total em webkits (iOS) */
-        min-height: -webkit-fill-available;
-        overflow: hidden; /* Esconde overflow para o efeito de tilt */
-        perspective: 1000px; /* Perspectiva para o 3D */
+        padding: 20px;
+        perspective: 1000px;
     }
 
     @keyframes gradientBG {
@@ -54,75 +48,87 @@
         100% { background-position: 0% 50%; }
     }
 
-    /* --- Container Principal (para o efeito de tilt) --- */
     .main-container {
-        width: 95%;
+        width: 100%;
         max-width: 900px;
-        height: 90vh;
-        max-height: 700px;
         background: var(--color-bg-light);
         border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 100px rgba(61, 139, 253, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: transform 0.1s ease-out;
+        transition: transform 0.1s ease-out, box-shadow 0.3s ease;
         display: flex;
         flex-direction: column;
-        overflow: hidden; /* Para conter as telas */
+        position: relative;
+        backdrop-filter: blur(10px);
+    }
+    
+    .main-container:hover {
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 120px rgba(61, 139, 253, 0.2);
     }
 
-    /* --- Telas (Start, Rules, Game, Results) --- */
     .screen {
-        padding: 40px;
+        padding: 50px 40px;
         display: none;
         flex-direction: column;
         align-items: center;
         text-align: center;
         width: 100%;
-        height: 100%;
-        overflow-y: auto; /* Permite scroll */
-        /*
-        Esta é a chave! A maioria das telas começa no topo.
-        Vamos sobrescrever para as telas de início e regras.
-        */
-        justify-content: flex-start;
+        min-height: 500px;
+        justify-content: center;
     }
 
     .screen.active {
         display: flex;
-        /* Animação de entrada mais suave */
-        animation: fadeIn 0.5s ease-out;
+        animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
-    /* >>> A CORREÇÃO PRINCIPAL ESTÁ AQUI <<<
-       Telas curtas (Início e Regras) ficam centralizadas.
-       Telas longas (Jogo e Resultados) usam o 'flex-start' acima.
-    */
-    #start-screen, #rules-screen {
-        justify-content: center;
+    #game-screen, #results-screen {
+        justify-content: flex-start;
+        min-height: auto;
     }
 
-    /* Animação de entrada mais dinâmica */
     @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.97) translateY(10px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
+        from { 
+            opacity: 0; 
+            transform: scale(0.95) translateY(20px);
+            filter: blur(5px);
+        }
+        to { 
+            opacity: 1; 
+            transform: scale(1) translateY(0);
+            filter: blur(0);
+        }
     }
 
     h1 {
-        font-size: 2.5rem;
-        color: var(--color-secondary);
-        margin-bottom: 10px;
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--color-secondary), var(--color-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+        text-shadow: 0 0 30px rgba(0, 245, 212, 0.3);
+        animation: titleGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+        0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 245, 212, 0.3)); }
+        50% { filter: drop-shadow(0 0 20px rgba(0, 245, 212, 0.6)); }
     }
     
     h2 {
-        font-size: 2rem;
+        font-size: 2.2rem;
         color: var(--color-primary);
         margin-bottom: 20px;
+        font-weight: 600;
     }
     
     h3 {
         color: var(--color-secondary);
         margin-bottom: 15px;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
+        font-weight: 600;
     }
 
     p {
@@ -132,54 +138,83 @@
         max-width: 600px;
     }
 
-    /* --- Botões --- */
     .btn {
-        background: var(--color-primary);
+        background: linear-gradient(135deg, var(--color-primary), #5aa3ff);
         color: white;
         border: none;
-        padding: 12px 25px;
+        padding: 14px 32px;
         border-radius: 50px;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         margin: 10px;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 20px rgba(61, 139, 253, 0.3);
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn:hover::before {
+        width: 300px;
+        height: 300px;
     }
 
     .btn:hover {
-        transform: scale(1.05) translateY(-3px);
-        box-shadow: 0 8px 20px rgba(61, 139, 253, 0.4);
-        background: #4a9aff;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(61, 139, 253, 0.5);
+    }
+    
+    .btn:active {
+        transform: translateY(-1px);
     }
 
     .btn-secondary {
-        background: var(--color-card);
-        color: var(--color-text);
+        background: linear-gradient(135deg, var(--color-card), #344a63);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
     .btn-secondary:hover {
-        background: var(--color-bg-light);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
     }
     
     .btn-reveal {
-        background: var(--color-secondary);
+        background: linear-gradient(135deg, var(--color-secondary), #00d4b8);
         color: var(--color-bg);
+        font-size: 1.1rem;
+        padding: 16px 40px;
+        animation: revealPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes revealPulse {
+        0%, 100% { box-shadow: 0 8px 20px rgba(0, 245, 212, 0.4); }
+        50% { box-shadow: 0 12px 35px rgba(0, 245, 212, 0.7); }
     }
     
     .btn-reveal:hover {
-        background: #00ffd5;
-        box-shadow: 0 8px 20px rgba(0, 245, 212, 0.4);
+        background: linear-gradient(135deg, #00ffd5, var(--color-secondary));
+        transform: scale(1.05) translateY(-3px);
     }
     
     #btn-reveal-matches {
-        display: none; /* Começa escondido */
+        display: none;
+        margin-top: 30px;
     }
 
-    /* --- Tela do Jogo (Inputs) --- */
     .player-section {
         width: 100%;
         display: none;
@@ -194,10 +229,6 @@
 
     .category-grid {
         display: grid;
-        /* Grid dinâmico: 
-         - Em telas grandes, tenta encaixar colunas de 250px.
-         - Em telas pequenas, 'minmax(250px, 1fr)' vira 1 coluna só.
-        */
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 20px;
         width: 100%;
@@ -206,40 +237,56 @@
 
     .category-box {
         background: var(--color-card);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .category-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        border-color: rgba(61, 139, 253, 0.3);
     }
 
     .category-box label {
         display: block;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-weight: 600;
-        margin-bottom: 10px;
-        color: var(--color-primary);
+        margin-bottom: 15px;
+        color: var(--color-secondary);
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .category-box input[type="text"] {
         width: 100%;
         background: var(--color-bg-light);
-        border: 2px solid var(--color-bg); /* Borda mais grossa */
-        border-radius: 5px;
-        padding: 8px;
-        margin-bottom: 8px;
+        border: 2px solid var(--color-bg);
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
         color: var(--color-text);
         font-family: 'Poppins', sans-serif;
-        font-size: 0.9rem;
-        transition: all 0.2s ease-in-out;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .category-box input[type="text"]:focus {
         outline: none;
         border-color: var(--color-secondary);
-        /* Efeito de "glow" no focus */
-        box-shadow: 0 0 10px rgba(0, 245, 212, 0.3);
+        background: rgba(0, 245, 212, 0.05);
+        box-shadow: 0 0 0 3px rgba(0, 245, 212, 0.1), 0 0 15px rgba(0, 245, 212, 0.2);
+        transform: scale(1.02);
+    }
+    
+    .category-box input[type="text"]::placeholder {
+        color: var(--color-text-dark);
+        opacity: 0.6;
     }
 
-    /* --- Tela de Resultados --- */
     #results-grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -250,40 +297,64 @@
 
     .result-category-card {
         background: var(--color-card);
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .result-category-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
     }
     
     .result-category-card h3 {
         text-align: center;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(0, 245, 212, 0.2);
     }
 
     .result-columns {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr; /* 3 colunas por padrão */
+        grid-template-columns: 1fr 1fr 1fr;
         gap: 15px;
         margin-top: 15px;
     }
     
     .result-column {
         background: var(--color-bg-light);
-        padding: 15px;
-        border-radius: 8px;
+        padding: 20px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .result-column:hover {
+        transform: translateY(-2px);
+        border-color: rgba(61, 139, 253, 0.2);
     }
     
     .result-column h4 {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
-        color: var(--color-text-dark);
+        color: var(--color-text);
         border-bottom: 2px solid var(--color-card);
-        padding-bottom: 5px;
-        margin-bottom: 10px;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
+    .result-column.matches {
+        background: linear-gradient(135deg, rgba(255, 195, 0, 0.1), rgba(255, 195, 0, 0.05));
+        border-color: rgba(255, 195, 0, 0.3);
     }
     
     .result-column.matches h4 {
         color: var(--color-match);
+        border-bottom-color: rgba(255, 195, 0, 0.3);
     }
     
     .result-column ul {
@@ -291,29 +362,52 @@
     }
     
     .result-column li {
-        padding: 5px 0;
+        padding: 8px 12px;
+        margin: 5px 0;
         font-size: 0.95rem;
-        word-wrap: break-word; /* Garante que texto longo não quebre o layout */
+        word-wrap: break-word;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .result-column li:hover {
+        background: rgba(0, 0, 0, 0.2);
+        transform: translateX(3px);
     }
     
     .result-column .match-item {
         font-weight: 700;
         color: var(--color-match);
-        animation: pulse 1.5s infinite ease-in-out;
+        background: rgba(255, 195, 0, 0.15);
+        border-left: 3px solid var(--color-match);
+        animation: matchPulse 2s infinite ease-in-out;
+        text-shadow: 0 0 10px rgba(255, 195, 0, 0.3);
+    }
+    
+    .result-column .match-item:hover {
+        background: rgba(255, 195, 0, 0.25);
+        transform: translateX(5px);
     }
     
     .result-column .no-match {
         font-style: italic;
         color: var(--color-text-dark);
+        opacity: 0.6;
+        text-align: center;
     }
 
-    @keyframes pulse {
-        0% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
-        50% { text-shadow: 0 0 10px rgba(255, 195, 0, 1); }
-        100% { text-shadow: 0 0 3px rgba(255, 195, 0, 0.5); }
+    @keyframes matchPulse {
+        0%, 100% { 
+            text-shadow: 0 0 10px rgba(255, 195, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 195, 0, 0.1);
+        }
+        50% { 
+            text-shadow: 0 0 20px rgba(255, 195, 0, 0.6);
+            box-shadow: 0 0 20px rgba(255, 195, 0, 0.2);
+        }
     }
     
-    /* --- Scrollbar Customizada --- */
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -329,61 +423,105 @@
         background: #4a9aff;
     }
 
-    /* ========================================================
-    >>> NOVO BLOCO DE RESPONSIVIDADE (CELULAR) <<<
-    ========================================================
-    */
-    
     @media (max-width: 768px) {
         body {
-            /* Remove a perspectiva no celular, o efeito de tilt pode ser estranho */
-            perspective: none; 
+            padding: 0;
+            perspective: none;
+            align-items: flex-start;
         }
 
         .main-container {
-            /* Transforma o app em "tela cheia" no celular */
-            width: 100vw;
-            height: 100vh;
-            height: -webkit-fill-available; /* Para iOS Safari */
+            width: 100%;
+            min-height: 100vh;
             border-radius: 0;
             border: none;
             box-shadow: none;
-            max-height: none; /* Remove a altura máxima */
-            
-            /* Desativa o tilt no celular, é estranho e gasta bateria */
             transform: none !important;
         }
 
         .screen {
-            padding: 20px; /* Reduz o padding lateral */
+            padding: 30px 20px;
+            min-height: auto;
         }
 
+        h1 {
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            font-size: 1.2rem;
+        }
+        
+        p {
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .btn-reveal {
+            padding: 14px 32px;
+            font-size: 1rem;
+        }
+
+        .category-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .category-box {
+            padding: 20px;
+        }
+        
+        .category-box label {
+            font-size: 1.1rem;
+        }
+
+        .result-columns {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .result-column {
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .result-category-card {
+            padding: 20px;
+        }
+        
+        .result-category-card h3 {
+            font-size: 1.3rem;
+        }
+    }
+    
+    @media (max-width: 400px) {
         h1 {
             font-size: 2rem;
         }
         
         h2 {
-            font-size: 1.7rem;
+            font-size: 1.5rem;
         }
-
-        .category-grid {
-            /* O 'auto-fit' já faz isso, mas garantimos 1 coluna */
-            grid-template-columns: 1fr;
-            gap: 15px;
+        
+        .screen {
+            padding: 20px 15px;
         }
         
         .category-box {
             padding: 15px;
         }
-
-        .result-columns {
-            /* Esta é a mudança mais importante para o celular! */
-            grid-template-columns: 1fr; /* Colunas empilhadas */
-            gap: 20px;
-        }
         
-        .result-column {
-            background: rgba(0,0,0,0.1); /* Um pouco mais de contraste */
+        .result-category-card {
+            padding: 15px;
         }
     }
 </style>
@@ -393,41 +531,48 @@
     <div class="main-container" id="main-container">
 
         <div class="screen active" id="start-screen">
-            <h1>Desafio da Ilha</h1>
-            <p>Vocês conseguem sobreviver (com luxo) juntos?</p>
+            <h1>🏝️ Desafio da Ilha 🏝️</h1>
+            <p style="font-size: 1.2rem; margin-bottom: 30px;">Vocês conseguem sobreviver (com luxo) juntos?</p>
             <div class="button-group">
-                <button class="btn" id="btn-play">Jogar</button>
-                <button class="btn btn-secondary" id="btn-rules">Regras</button>
+                <button class="btn" id="btn-play">🎮 Começar Jogo</button>
+                <button class="btn btn-secondary" id="btn-rules">📋 Ver Regras</button>
             </div>
         </div>
 
         <div class="screen" id="rules-screen">
-            <h2>Regras do Jogo</h2>
-            <p>Você e seu parceiro estão em uma ilha deserta que já tem nela:
+            <h2>📜 Regras do Jogo</h2>
+            <p style="max-width: 700px; line-height: 1.8;">
+                Você e seu parceiro estão em uma ilha deserta que já tem:
                 <br><br>
-                <b>Casa</b>, <b>gerador de energia</b>, <b>água potável</b> à vontade, uma <b>TV</b> (que só serve para assistir os filmes que você levar) e <b>todos os consoles e um PC</b> (que só vão rodar os jogos que você levar).
+                🏠 <b>Casa confortável</b><br>
+                ⚡ <b>Gerador de energia infinita</b><br>
+                💧 <b>Água potável à vontade</b><br>
+                📺 <b>TV</b> (para assistir os filmes que você levar)<br>
+                🎮 <b>Todos os consoles e um PC</b> (para jogar os games que escolher)
                 <br><br>
-                Cada um deve escolher 5 itens para 7 categorias. Boa sorte!
+                <span style="color: var(--color-secondary); font-weight: 600;">
+                Cada um deve escolher 5 itens para 7 categorias diferentes.
+                </span>
+                <br>
+                Descubram quais escolhas vocês têm em comum! ❤️
             </p>
-            <button class="btn btn-secondary" id="btn-back-to-start">Voltar</button>
+            <button class="btn btn-secondary" id="btn-back-to-start">← Voltar</button>
         </div>
 
         <div class="screen" id="game-screen">
             
             <div class="player-section active" id="player1-section">
-                <h2>Vez do Jogador 1</h2>
-                <p>Preencha suas 5 escolhas para cada categoria.</p>
-                <form id="player1-form" class="category-grid">
-                    </form>
-                <button class="btn" id="btn-confirm-p1">Confirmar Jogador 1</button>
+                <h2>🎮 Vez do Jogador 1</h2>
+                <p style="margin-bottom: 25px;">Preencha suas 5 escolhas para cada categoria abaixo:</p>
+                <form id="player1-form" class="category-grid"></form>
+                <button class="btn" id="btn-confirm-p1">✓ Confirmar Escolhas</button>
             </div>
             
             <div class="player-section" id="player2-section">
-                <h2>Vez do Jogador 2</h2>
-                <p>Agora é sua vez. Sem espiar as respostas do Jogador 1!</p>
-                <form id="player2-form" class="category-grid">
-                    </form>
-                <button class="btn" id="btn-confirm-p2">Confirmar Jogador 2</button>
+                <h2>🎯 Vez do Jogador 2</h2>
+                <p style="margin-bottom: 25px; color: var(--color-match);">Agora é sua vez! Sem espiar as respostas do Jogador 1! 👀</p>
+                <form id="player2-form" class="category-grid"></form>
+                <button class="btn" id="btn-confirm-p2">✓ Confirmar Escolhas</button>
             </div>
             
             <button class="btn btn-reveal" id="btn-reveal-matches">✨ Revelar Matches ✨</button>
@@ -435,11 +580,10 @@
         </div>
         
         <div class="screen" id="results-screen">
-            <h2>Resultados e Matches!</h2>
-            <p>Vejam onde vocês concordam e onde são totalmente diferentes.</p>
-            <div id="results-grid">
-                </div>
-            <button class="btn btn-secondary" id="btn-play-again">Jogar Novamente</button>
+            <h2>🎉 Resultados e Matches! 🎉</h2>
+            <p style="margin-bottom: 30px;">Vejam onde vocês concordam e onde são totalmente diferentes:</p>
+            <div id="results-grid"></div>
+            <button class="btn btn-secondary" id="btn-play-again">🔄 Jogar Novamente</button>
         </div>
 
     </div>
@@ -447,18 +591,16 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- Constantes das Categorias ---
             const CATEGORIES = [
-                { id: 'jogos', label: '5 Jogos' },
-                { id: 'vestimentas', label: '5 Vestimentas' },
-                { id: 'objetos', label: '5 Objetos' },
-                { id: 'filmes', label: '5 Filmes' },
-                { id: 'comidas', label: '5 Comidas' },
-                { id: 'livros', label: '5 Livros' },
-                { id: 'bebidas', label: '5 Bebidas' }
+                { id: 'jogos', label: '🎮 5 Jogos' },
+                { id: 'vestimentas', label: '👕 5 Vestimentas' },
+                { id: 'objetos', label: '🔧 5 Objetos' },
+                { id: 'filmes', label: '🎬 5 Filmes' },
+                { id: 'comidas', label: '🍕 5 Comidas' },
+                { id: 'livros', label: '📚 5 Livros' },
+                { id: 'bebidas', label: '🥤 5 Bebidas' }
             ];
 
-            // --- Seletores de Elementos ---
             const mainContainer = document.getElementById('main-container');
             
             const screens = {
@@ -490,25 +632,15 @@
                 playAgain: document.getElementById('btn-play-again')
             };
             
-            // --- Armazenamento das Escolhas ---
             let player1Choices = {};
             let player2Choices = {};
-            
-            // --- Funções Auxiliares ---
 
-            /**
-             * Muda para a tela especificada.
-             * @param {string} screenName - Chave da tela (ex: 'start', 'game')
-             */
             function showScreen(screenName) {
                 Object.values(screens).forEach(screen => screen.classList.remove('active'));
                 screens[screenName].classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
 
-            /**
-             * Gera as caixas de input para um formulário.
-             * @param {HTMLElement} formElement - O elemento <form> para preencher.
-             */
             function populateForm(formElement) {
                 let html = '';
                 CATEGORIES.forEach(category => {
@@ -522,11 +654,6 @@
                 formElement.innerHTML = html;
             }
 
-            /**
-             * Coleta os dados de um formulário.
-             * @param {HTMLElement} formElement - O elemento <form> de onde ler.
-             * @returns {Object} - Um objeto com as escolhas (ou null se inválido).
-             */
             function getChoices(formElement) {
                 let choices = {};
                 let isValid = true;
@@ -541,10 +668,9 @@
                         }
                     });
                     
-                    // Validação simples: precisa de pelo menos 1 item por categoria
                     if (choices[category.id].length === 0) {
                         isValid = false;
-                        inputs[0].focus(); // Foca no primeiro campo vazio da categoria
+                        inputs[0].focus();
                     }
                 });
 
@@ -556,20 +682,13 @@
                 return choices;
             }
             
-            /**
-             * Normaliza um item para comparação (lowercase, sem acentos).
-             * @param {string} str - A string para normalizar.
-             */
             function normalize(str) {
                 return str.toLowerCase().trim()
                           .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             }
 
-            /**
-             * Calcula e exibe os resultados.
-             */
             function displayResults() {
-                resultsGrid.innerHTML = ''; // Limpa resultados anteriores
+                resultsGrid.innerHTML = '';
                 
                 CATEGORIES.forEach(category => {
                     const p1List = player1Choices[category.id].map(normalize);
@@ -582,7 +701,6 @@
                     let p1Only = [];
                     let p2Only = [];
 
-                    // Encontra matches e itens únicos do P1
                     p1Original.forEach((item, index) => {
                         const normalizedItem = p1List[index];
                         if (p2List.includes(normalizedItem)) {
@@ -592,7 +710,6 @@
                         }
                     });
 
-                    // Encontra itens únicos do P2
                     p2Original.forEach((item, index) => {
                         const normalizedItem = p2List[index];
                         if (!p1List.includes(normalizedItem)) {
@@ -600,7 +717,6 @@
                         }
                     });
 
-                    // Cria o HTML do Card
                     const cardHTML = `
                         <div class="result-category-card">
                             <h3>${category.label}</h3>
@@ -622,7 +738,6 @@
                     `;
                     resultsGrid.insertAdjacentHTML('beforeend', cardHTML);
                     
-                    // Popula as listas
                     const p1ListEl = document.getElementById(`p1-list-${category.id}`);
                     const p2ListEl = document.getElementById(`p2-list-${category.id}`);
                     const matchListEl = document.getElementById(`match-list-${category.id}`);
@@ -635,44 +750,49 @@
                 showScreen('results');
             }
 
-            // --- Efeito de Tilt (Movimento do Mouse) ---
             mainContainer.addEventListener('mousemove', (e) => {
-                const rect = mainContainer.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
+                if (window.innerWidth > 768) {
+                    const rect = mainContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
 
-                const rotateX = (y / rect.height) * -10; // Max 5 graus
-                const rotateY = (x / rect.width) * 10;   // Max 5 graus
+                    const rotateX = (y / rect.height) * -10;
+                    const rotateY = (x / rect.width) * 10;
 
-                mainContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                    mainContainer.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                }
             });
 
             mainContainer.addEventListener('mouseleave', () => {
                 mainContainer.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
             });
 
-            // --- Navegação entre Telas ---
-            
-            // Tela Inicial
             buttons.play.addEventListener('click', () => {
                 showScreen('game');
                 playerSections.p1.classList.add('active');
                 playerSections.p2.classList.remove('active');
                 buttons.reveal.style.display = 'none';
             });
+            
             buttons.rules.addEventListener('click', () => showScreen('rules'));
             buttons.back.addEventListener('click', () => showScreen('start'));
 
-            // Tela do Jogo
             buttons.confirmP1.addEventListener('click', (e) => {
-                e.preventDefault(); // Impede o envio do formulário
+                e.preventDefault();
                 const choices = getChoices(forms.p1);
                 if (choices) {
                     player1Choices = choices;
-                    playerSections.p1.classList.remove('active');
-                    playerSections.p2.classList.add('active');
-                    // Rola a tela do jogo para o topo
-                    screens.game.scrollTop = 0;
+                    
+                    buttons.confirmP1.textContent = '✓ Confirmado!';
+                    buttons.confirmP1.style.background = 'linear-gradient(135deg, #00d4b8, var(--color-secondary))';
+                    
+                    setTimeout(() => {
+                        playerSections.p1.classList.remove('active');
+                        playerSections.p2.classList.add('active');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        buttons.confirmP1.textContent = '✓ Confirmar Escolhas';
+                        buttons.confirmP1.style.background = '';
+                    }, 800);
                 }
             });
 
@@ -681,29 +801,33 @@
                 const choices = getChoices(forms.p2);
                 if (choices) {
                     player2Choices = choices;
-                    playerSections.p2.classList.remove('active');
-                    buttons.reveal.style.display = 'block';
+                    
+                    buttons.confirmP2.textContent = '✓ Confirmado!';
+                    buttons.confirmP2.style.background = 'linear-gradient(135deg, #00d4b8, var(--color-secondary))';
+                    
+                    setTimeout(() => {
+                        playerSections.p2.classList.remove('active');
+                        buttons.reveal.style.display = 'block';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        buttons.confirmP2.textContent = '✓ Confirmar Escolhas';
+                        buttons.confirmP2.style.background = '';
+                    }, 800);
                 }
             });
 
-            // Tela de Resultados
             buttons.reveal.addEventListener('click', displayResults);
             
             buttons.playAgain.addEventListener('click', () => {
-                // Reseta os formulários
                 forms.p1.reset();
                 forms.p2.reset();
-                // Reseta os dados
                 player1Choices = {};
                 player2Choices = {};
-                // Volta para a tela inicial
                 showScreen('start');
             });
             
-            // --- Inicialização ---
             populateForm(forms.p1);
             populateForm(forms.p2);
-            showScreen('start'); // Mostra a tela inicial
+            showScreen('start');
         });
     </script>
 </body>
